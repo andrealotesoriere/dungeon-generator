@@ -48,5 +48,29 @@
     </main>
     
     <script src="js/editor.js"></script>
+    <div id="modalOverlay" class="modal-overlay">
+    <div id="encounterModal" class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <h3 id="modalTitle">Aggiungi Incontro</h3>
+        
+        <label for="encounterTypeSelect">Tipo di Incontro:</label>
+        <select id="encounterTypeSelect" onchange="toggleEncounterFields(this.value)">
+            <option value="creature">Creatura</option>
+            <option value="trap">Trappola</option>
+        </select>
+
+        <div id="creatureFields" class="modal-field-group">
+            <label for="creatureSelect">Seleziona Creatura (CR):</label>
+            <select id="creatureSelect"></select> <label for="creatureQuantity">Quantità:</label>
+            <input type="number" id="creatureQuantity" value="1" min="1">
+        </div>
+
+        <div id="trapFields" class="modal-field-group" style="display: none;">
+            <label for="trapSelect">Seleziona Trappola (CD):</label>
+            <select id="trapSelect"></select> </div>
+
+        <button onclick="confirmAddEncounter()">Aggiungi alla Stanza</button>
+    </div>
+</div>
 </body>
 </html>
