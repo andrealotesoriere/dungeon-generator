@@ -70,6 +70,14 @@ button:active {
     transform: scale(0.98);
 }
 
+/* Stili per il bottone di rimozione negli incontri */
+.remove-btn {
+    background-color: #cc0000;
+    padding: 5px 10px;
+    font-size: 0.8em;
+    margin-left: 10px;
+}
+
 /*
  * --------------------------------
  * 3. Dashboard (index.html)
@@ -159,4 +167,106 @@ button:active {
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: var(--border-radius);
+}
+
+/* Stili per la lista degli Incontri */
+.encounter-list {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 15px;
+}
+
+.encounter-item {
+    background-color: #fff;
+    border: 1px dashed #ccc;
+    padding: 10px;
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 3px;
+}
+
+.details {
+    font-size: 0.9em;
+    color: #555;
+    margin-left: 10px;
+}
+
+.cr-summary {
+    font-size: 1.1em;
+    padding: 10px;
+    background-color: #ffcccc; /* Sfondo che richiama l'attenzione sul rischio */
+    border: 1px solid var(--color-primary);
+    border-radius: 5px;
+    margin-top: 15px;
+}
+
+
+/*
+ * --------------------------------
+ * 5. Stili Modale (Pop-up)
+ * --------------------------------
+ */
+
+.modal-overlay {
+    display: none; /* Nascondi di default */
+    position: fixed;
+    z-index: 1000; /* Assicura che sia sopra tutto */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.6); /* Sfondo semi-trasparente */
+    display: flex; /* Usiamo flex per centrare */
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: var(--color-background);
+    color: var(--color-dark);
+    padding: 30px;
+    border: 3px solid var(--color-primary);
+    border-radius: var(--border-radius);
+    width: 80%;
+    max-width: 500px;
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.close-btn {
+    color: var(--color-primary);
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-btn:hover {
+    color: #a52a2a;
+}
+
+.modal-field-group label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.modal-field-group select,
+.modal-field-group input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: var(--border-radius);
+    margin-bottom: 10px;
+}
+
+.modal-content button:last-child {
+    margin-top: 20px;
+    width: 100%;
 }
