@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D&D Dungeon Master Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <header>
+        <h1>⚔️ I Miei Dungeon 🗝️</h1>
+        <button id="newDungeonBtn" onclick="window.location.href='editor.html'">
+            + Crea Nuovo Dungeon
+        </button>
+    </header>
+
+    <main id="dungeonList">
+        <h2>Dungeon Salvati</h2>
+        
+        <div class="dungeon-card">
+            <h3>Il Sotterraneo della Tana del Drago</h3>
+            <p>Livello di Sfida (CR): 4</p>
+            <p>Stanze: 8</p>
+            <button onclick="window.location.href='editor.html?id=drago'">Modifica</button>
+        </div>
+
+    </main>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
