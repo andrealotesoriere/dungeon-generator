@@ -1,0 +1,162 @@
+/*
+ * --------------------------------
+ * 1. Stili Base e Tocco Fantasy
+ * --------------------------------
+ */
+
+/* Utilizzo di un font serif che richiama i libri fantasy */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400&display=swap');
+
+:root {
+    --color-primary: #8b0000;      /* Rosso Scuro (come un sigillo o un timbro) */
+    --color-secondary: #c09d57;    /* Oro/Pergamena */
+    --color-background: #fdf6e3;   /* Colore Pergamena Chiara */
+    --color-dark: #2c2f33;         /* Testo Scuro */
+    --border-radius: 5px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Lato', sans-serif;
+    background-color: var(--color-background);
+    color: var(--color-dark);
+    line-height: 1.6;
+    padding: 20px;
+}
+
+/* Titoli in stile 'Cinzel' (più epico) */
+h1, h2, h3 {
+    font-family: 'Cinzel', serif;
+    color: var(--color-primary);
+    margin-bottom: 10px;
+}
+
+/*
+ * --------------------------------
+ * 2. Componenti Comuni (Header, Button)
+ * --------------------------------
+ */
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    border-bottom: 3px solid var(--color-primary); /* Linea di separazione */
+    margin-bottom: 30px;
+}
+
+button {
+    background-color: var(--color-primary);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s, transform 0.1s;
+}
+
+button:hover {
+    background-color: #a52a2a;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+/*
+ * --------------------------------
+ * 3. Dashboard (index.html)
+ * --------------------------------
+ */
+
+#dungeonList {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.dungeon-card {
+    background: white;
+    border: 2px solid var(--color-secondary);
+    border-left: 10px solid var(--color-primary); /* Elemento distintivo */
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.dungeon-card h3 {
+    color: var(--color-dark);
+    margin-top: 0;
+    font-size: 1.5em;
+}
+
+.dungeon-card button {
+    margin-top: 15px;
+    width: 100%;
+}
+
+/*
+ * --------------------------------
+ * 4. Editor Dungeon (editor.html)
+ * --------------------------------
+ */
+
+.editor-layout {
+    display: flex;
+    gap: 30px;
+}
+
+#mapArea {
+    flex: 2; /* L'area della mappa è più grande */
+    background-color: #eee;
+    padding: 20px;
+    border-radius: var(--border-radius);
+    border: 1px solid #ccc;
+}
+
+#encounterArea {
+    flex: 1; /* L'area degli incontri è più piccola */
+    background-color: #fff;
+    padding: 20px;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--color-secondary);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+#canvas-placeholder {
+    min-height: 400px;
+    background-color: #333; /* Sfondo scuro per simulare la mappa */
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed #999;
+    margin-top: 15px;
+}
+
+#creatureList, #trapList, #roomSelector {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+}
+
+#roomSelector label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+#currentRoom {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: var(--border-radius);
+}
