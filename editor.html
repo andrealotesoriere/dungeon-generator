@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor Dungeon D&D</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <header>
+        <button onclick="window.location.href='index.html'">
+            ← Torna alla Dashboard
+        </button>
+        <h1 id="dungeonName">Modifica: Nuovo Dungeon Senza Nome</h1>
+        <button id="saveDungeonBtn">💾 Salva</button>
+    </header>
+
+    <main class="editor-layout">
+        <section id="mapArea">
+            <h2>Mappa e Struttura</h2>
+            <div id="canvas-placeholder">
+                [Area Grafica o Input Testuale della Mappa]
+            </div>
+        </section>
+
+        <section id="encounterArea">
+            <h2>Gestione Incontri (Creature/Trappole)</h2>
+            <div id="roomSelector">
+                <label for="currentRoom">Stanza Selezionata:</label>
+                <select id="currentRoom">
+                    <option value="A1">Stanza A1: Ingresso</option>
+                    <option value="B2">Stanza B2: Tesoro</option>
+                </select>
+            </div>
+
+            <div id="creatureList">
+                <h3>Creature in A1:</h3>
+                <p>Nessuna creatura aggiunta.</p>
+                <button onclick="addEncounter('creature')">+ Aggiungi Creatura</button>
+            </div>
+
+            <div id="trapList">
+                <h3>Trappole in A1:</h3>
+                <button onclick="addEncounter('trap')">+ Aggiungi Trappola</button>
+            </div>
+        </section>
+    </main>
+    
+    <script src="js/editor.js"></script>
+</body>
+</html>
