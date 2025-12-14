@@ -1,73 +1,261 @@
-// js/editor.js
+// ====================================================
+// client/js/editor.js - Logica Completa dell'Editor Dungeon
+// ====================================================
 
-// Dati fittizi (Mock Data) per le creature
+// ----------------------------------------------------
+// Dati Fittizi (Mock Data) - Da sostituire con API in futuro
+// ----------------------------------------------------
+
 const mockCreatures = [
-    { nome: "Goblin", cr: "1/4", ac: 15, pf: "7 (2d6)" },
-    { nome: "Ogre", cr: "2", ac: 13, pf: "59 (7d10 + 21)" },
-    { nome: "Scheletro", cr: "1/4", ac: 13, pf: "13 (2d8 + 4)" }
+    { nome: "Goblin", cr: "1/4", ac: 15, pf: "7 (2d6)", id: 'goblin' },
+    { nome: "Scheletro", cr: "1/4", ac: 13, pf: "13 (2d8 + 4)", id: 'skeleton' },
+    { nome: "Ogre", cr: "2", ac: 13, pf: "59 (7d10 + 21)", id: 'ogre' },
+    { nome: "Beholder", cr: "13", ac: 18, pf: "180 (19d10 + 76)", id: 'beholder' }
+];
+
+const mockTraps = [
+    { nome: "Fossa con Spiedi", cd_percezione: 15, cd_salvezza: 13, danno: "2d10 Perforante", id: 'pit' },
+    { nome: "Dardo Avvelenato", cd_percezione: 12, cd_salvezza: 14, danno: "1d4 Perforante + 2d6 Veleno", id: 'dart' }
 ];
 
 // Struttura dati fittizia del Dungeon che stiamo modificando
 let currentDungeon = {
-    nome: "Nuovo Dungeon Senza Nome",
+    nome: "Il Livello 1 del Culto",
     stanze: [
-        { id: "A1", descrizione: "Ingresso", incontri: [] },
-        { id: "B2", descrizione: "Corridoio", incontri: [] }
-    ]
+        { id: "A1", descrizione: "Ingresso in Rovina", incontri: [] },
+        { id: "B2", descrizione: "Stanza della Guardia", incontri: [] },
+        { id: "C3", descrizione: "Tesoro Principale", incontri: [] }
+    ],
+    selectedRoomId: "A1"
 };
 
+/**
+ * Converte il Challenge Rating (CR) da stringa a valore numerico.
+ * Gestisce anche le frazioni (es. "1/4" -> 0.25).
+ * @param {string} crString - Il CR come stringa.
+ * @returns {number} Il valore numerico del CR.
+ */
+function parseCr(crString) {
+    if (crString.includes('/')) {
+        const parts = crString.split('/');
+        return parseFloat(parts[0]) / parseFloat(parts[1]);
+    }
+    return parseFloat(crString);
+}
+
+
+// ----------------------------------------------------
+// Funzioni Modale (Aggiunta Incontri)
+// ----------------------------------------------------
+
+function openModal(type) {
+    // Aggiorna la stanza selezionata nel modello
+    currentDungeon.selectedRoomId = document.getElementById('currentRoom').value;
+
+    // Popola i <select> della modale con i dati fittizi
+    populateModalSelects();
+
+    // Imposta il tipo e mostra i campi giusti
+    const encounterTypeSelect = document.getElementById('encounterTypeSelect');
+    encounterTypeSelect.value = type;
+    toggleEncounterFields(type);
+
+    // Mostra la modale
+    document.getElementById('modalOverlay').style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('modalOverlay').style.display = 'none';
+}
+
+function toggleEncounterFields(type) {
+    // Nasconde/mostra i campi specifici per Creature o Trappole
+    document.getElementById('creatureFields').style.display = (type === 'creature') ? 'block' : 'none';
+    document.getElementById('trapFields').style.display = (type === 'trap') ? 'block' : 'none';
+    document.getElementById('modalTitle').textContent = `Aggiungi ${type === 'creature' ? 'Creatura' : 'Trappola'} a Stanza ${currentDungeon.selectedRoomId}`;
+}
+
+function populateModalSelects() {
+    // Popola la lista delle Creature
+    const creatureSelect = document.getElementById('creatureSelect');
+    creatureSelect.innerHTML = mockCreatures.map(c => 
+        `<option value="${c.id}">${c.nome} (CR ${c.cr})</option>`
+    ).join('');
+
+    // Popola la lista delle Trappole
+    const trapSelect = document.getElementById('trapSelect');
+    trapSelect.innerHTML = mockTraps.map(t => 
+        `<option value="${t.id}">${t.nome} (CD ${t.cd_percezione})</option>`
+    ).join('');
+}
+
+function confirmAddEncounter() {
+    const type = document.getElementById('encounterTypeSelect').value;
+    const room = currentDungeon.stanze.find(s => s.id === currentDungeon.selectedRoomId);
+
+    if (!room) return alert("Errore: Stanza non trovata.");
+
+    let newEncounter;
+
+    if (type === 'creature') {
+        const creatureId = document.getElementById('creatureSelect').value;
+        const quantity = parseInt(document.getElementById('creatureQuantity').value);
+        const creatureData = mockCreatures.find(c => c.id === creatureId);
+
+        if (quantity < 1 || isNaN(quantity)) return alert("La quantità deve essere un numero valido maggiore di 0.");
+
+        newEncounter = {
+            type: 'creature',
+            quantita: quantity,
+            data: creatureData
+        };
+
+    } else if (type === 'trap') {
+        const trapId = document.getElementById('trapSelect').value;
+        const trapData = mockTraps.find(t => t.id === trapId);
+        
+        // Le trappole sono tipicamente 1 per tipo/luogo
+        newEncounter = {
+            type: 'trap',
+            quantita: 1, 
+            data: trapData
+        };
+    }
+
+    if (newEncounter) {
+        room.incontri.push(newEncounter);
+        closeModal();
+        loadRoomEncounters(); // Ricarica la vista della stanza
+    }
+}
+
+
+// ----------------------------------------------------
+// Funzioni Editor Principali (Init e Rendering)
+// ----------------------------------------------------
+
 function initEditor() {
-    // 1. Aggiorna il nome del dungeon
-    document.getElementById('dungeonName').textContent = `Modifica: ${currentDungeon.nome}`;
-    
-    // 2. Popola la lista delle stanze nel <select>
     const roomSelector = document.getElementById('currentRoom');
+    
+    // Inizializza il selettore delle stanze
     roomSelector.innerHTML = currentDungeon.stanze.map(stanza => 
         `<option value="${stanza.id}">Stanza ${stanza.id}: ${stanza.descrizione}</option>`
     ).join('');
 
-    // 3. Aggiungi listener per la selezione della stanza
-    roomSelector.addEventListener('change', loadRoomEncounters);
+    roomSelector.value = currentDungeon.selectedRoomId;
+    roomSelector.addEventListener('change', () => {
+        currentDungeon.selectedRoomId = roomSelector.value;
+        loadRoomEncounters();
+    });
 
-    // Carica gli incontri per la prima stanza all'avvio
-    loadRoomEncounters(); 
+    // Inizializza il nome del dungeon
+    document.getElementById('dungeonName').textContent = `Modifica: ${currentDungeon.nome}`;
+    
+    // Aggiungi l'event listener per chiudere la modale cliccando fuori
+    document.getElementById('modalOverlay').addEventListener('click', (e) => {
+        if (e.target.id === 'modalOverlay') {
+            closeModal();
+        }
+    });
+
+    loadRoomEncounters();
 }
 
 function loadRoomEncounters() {
-    const selectedRoomId = document.getElementById('currentRoom').value;
+    const selectedRoomId = currentDungeon.selectedRoomId;
     const room = currentDungeon.stanze.find(s => s.id === selectedRoomId);
     
     const creatureListDiv = document.getElementById('creatureList');
-    
-    // Filtriamo e visualizziamo solo le creature (per ora)
+    const trapListDiv = document.getElementById('trapList');
+
+    let totalRoomCR = 0;
+
+    // 1. Renderizzazione Creature
     const creaturesInRoom = room.incontri.filter(e => e.type === 'creature');
+    let creatureHTML = `<h3>Creature in ${selectedRoomId}:</h3>`;
 
     if (creaturesInRoom.length === 0) {
-        creatureListDiv.innerHTML = `<h3>Creature in ${selectedRoomId}:</h3><p>Nessuna creatura aggiunta.</p><button onclick="addEncounter('creature')">+ Aggiungi Creatura</button>`;
+        creatureHTML += `<p>Nessuna creatura aggiunta.</p>`;
     } else {
-        // Qui dovremmo creare l'HTML per mostrare i dettagli delle creature
-        // ... (Logica per renderizzare i dati)
-    }
-}
-
-function addEncounter(type) {
-    if (type === 'creature') {
-        // Pop-up o Modale per selezionare una creatura da mockCreatures
-        const selectedCreature = mockCreatures[0]; // Selezioniamo il Goblin per semplicità
-        
-        const selectedRoomId = document.getElementById('currentRoom').value;
-        const room = currentDungeon.stanze.find(s => s.id === selectedRoomId);
-        
-        room.incontri.push({
-            type: 'creature',
-            quantita: 1,
-            data: selectedCreature
+        creatureHTML += '<ul class="encounter-list">';
+        creaturesInRoom.forEach((e, index) => {
+            
+            // --- Logica Calcolo CR ---
+            const crValue = parseCr(e.data.cr); 
+            totalRoomCR += crValue * e.quantita; // CR Totale = Somma semplice dei CR
+            // --------------------------
+            
+            creatureHTML += `
+                <li class="encounter-item">
+                    <span>
+                        ${e.quantita}x <strong>${e.data.nome}</strong> 
+                        <span class="details">(CR ${e.data.cr}, AC ${e.data.ac}, PF ${e.data.pf})</span>
+                    </span>
+                    <button class="remove-btn" onclick="removeEncounter(${index}, 'creature')">Rimuovi</button>
+                </li>`;
         });
+        creatureHTML += '</ul>';
+    }
+    
+    // Mostra il CR totale calcolato per la stanza
+    creatureHTML += `<p class="cr-summary">Potenziale CR Totale: <strong>${totalRoomCR.toFixed(2)}</strong></p>`;
+    
+    creatureHTML += `<button onclick="openModal('creature')">+ Aggiungi Creatura</button>`;
+    creatureListDiv.innerHTML = creatureHTML;
 
-        alert(`Aggiunto 1 ${selectedCreature.nome} alla stanza ${selectedRoomId}`);
-        loadRoomEncounters(); // Ricarica la lista per mostrare la nuova aggiunta
+
+    // 2. Renderizzazione Trappole
+    const trapsInRoom = room.incontri.filter(e => e.type === 'trap');
+    let trapHTML = `<h3>Trappole in ${selectedRoomId}:</h3>`;
+
+    if (trapsInRoom.length === 0) {
+        trapHTML += `<p>Nessuna trappola aggiunta.</p>`;
+    } else {
+        trapHTML += '<ul class="encounter-list">';
+        trapsInRoom.forEach((e, index) => {
+            trapHTML += `
+                <li class="encounter-item">
+                    <span>
+                        <strong>${e.data.nome}</strong> 
+                        <span class="details">(CD Perc. ${e.data.cd_percezione}, Danno: ${e.data.danno})</span>
+                    </span>
+                    <button class="remove-btn" onclick="removeEncounter(${index}, 'trap')">Rimuovi</button>
+                </li>`;
+        });
+        trapHTML += '</ul>';
+    }
+    trapHTML += `<button onclick="openModal('trap')">+ Aggiungi Trappola</button>`;
+    trapListDiv.innerHTML = trapHTML;
+}
+
+/**
+ * Rimuove un incontro specifico dalla lista della stanza corrente.
+ * @param {number} index - L'indice dell'elemento nell'array incontri filtrato.
+ * @param {string} type - Tipo di incontro ('creature' o 'trap').
+ */
+function removeEncounter(index, type) {
+    const room = currentDungeon.stanze.find(s => s.id === currentDungeon.selectedRoomId);
+    
+    // Trova l'indice corretto nell'array room.incontri generale
+    let originalIndex = -1;
+    let count = 0;
+    
+    for (let i = 0; i < room.incontri.length; i++) {
+        if (room.incontri[i].type === type) {
+            if (count === index) {
+                originalIndex = i;
+                break;
+            }
+            count++;
+        }
+    }
+
+    if (originalIndex !== -1) {
+        room.incontri.splice(originalIndex, 1);
+        loadRoomEncounters(); // Ricarica la vista
     }
 }
+
 
 // Avvia l'editor appena la pagina è caricata
 document.addEventListener('DOMContentLoaded', initEditor);
